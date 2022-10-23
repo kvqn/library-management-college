@@ -1,6 +1,6 @@
 from __future__ import annotations
 import cv2
-import library.vision2 as vision2
+import camera.vision2 as vision2
 
 class Point:
     def __init__(self, x, y):

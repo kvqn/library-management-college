@@ -1,6 +1,6 @@
 from __future__ import annotations
-import library.vision2 as vision2
-from library.utils import *
+import camera.vision2 as vision2
+from camera.utils import *
 
 class AR_Button:
     

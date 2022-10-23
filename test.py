@@ -1,5 +1,5 @@
-import library.vision2
+import camera.vision2
 
 
 if __name__ == "__main__":
-    library.vision2.main()
+    camera.vision2.main()
