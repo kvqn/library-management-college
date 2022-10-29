@@ -17,3 +17,11 @@ book lending/returning history
     was_borrowed
     student
     date
+
+
+able to connect droidcam for higher quality but single threaded processing just wont do now.
+im getting 8 fps
+use of multiple cores is required
+maybe use sockets for communication
+idea : 
+    divide 4 frames among 4 processes and then combine then using the main process

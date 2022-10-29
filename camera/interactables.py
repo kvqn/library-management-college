@@ -1,20 +1,20 @@
 from __future__ import annotations
-import camera.vision2 as vision2
 from camera.utils import *
+import camera.test as test
 
 class AR_Button:
     
     def __init__(
         self, rect: Rectangle,
+        loading_rect : LoadingRectangle,
         text: Text,
-        vision: vision2.Vision,
-        frames_to_hold: int = 10,
+        frames_to_hold: int = 20,
         action : Action = None, 
-        allowed_fingers : list = [vision2.mpHands.HandLandmark.INDEX_FINGER_TIP]
+        allowed_fingers : list = [test.mpHands.HandLandmark.INDEX_FINGER_TIP]
     ):
         self.rect = rect
+        self.loading_rect = loading_rect
         self.text = text
-        self.vision = vision
         self.hovered = False
         self.frames_to_hold = frames_to_hold
         self.frames_held = 0
@@ -24,29 +24,32 @@ class AR_Button:
         self.allowed_fingers = allowed_fingers
     
     @staticmethod
-    def Create(x, y, text, vision, scale=0.04, color=Color.WHITE, **kwargs) -> AR_Button:
-        rect = Rectangle(Point(x, y), scale, color, 2, vision)
+    def Create(x, y, text, scale=0.04, color=Color.WHITE, **kwargs) -> AR_Button:
+        rect = Rectangle(Point(x, y), scale, color, 2)
         # FIXME: the text is not alligned properly
         x2 = rect.point2.x * 1.01
         y2 = rect.point2.y
-        text = Text(Point(x2, y2), scale, text, color, 2, vision)
-        return AR_Button(rect, text, vision, **kwargs)
+        text = Text(Point(x2, y2), scale, text, color, 2)
+        loading_rect = LoadingRectangle(Point(x,y), scale, color)
+        
+        return AR_Button(rect, loading_rect, text,  **kwargs)
     
-    def draw(self):
-        self.rect.draw()
-        self.text.draw()
+    def draw(self, frame):
+        self.rect.draw(frame)
+        self.loading_rect.draw(frame)
+        self.text.draw(frame)
     
-    def process(self):
+    def process(self, hands):
         
         # print("processing")
         
         inside = False
-        if not self.vision.hands:
+        if not hands:
             return 
     
-        for hand in self.vision.hands:
+        for hand in hands:
             for finger in self.allowed_fingers:
-                pt = Point.fromLandmark(hand.landmark[finger], self.vision)
+                pt = Point.fromLandmark(hand.landmark[finger])
                 # print(pt)
                 if self.rect.is_inside(pt):
                     inside = True
@@ -62,18 +65,21 @@ class AR_Button:
                 self.is_pressed = False
                 self.frames_held = 0
                 self.is_hovering = False
+                self.loading_rect.setProgress(0)
         
         else :
             
             if self.is_hovering:
                 if inside: # TODO: loading circle
                     self.frames_held += 1
+                    self.loading_rect.setProgress(self.frames_held / self.frames_to_hold)
                     if (self.frames_held >= self.frames_to_hold):
                         self.is_pressed = True
                         if self.action:
                             self.action()
                 else:
                     self.frames_held = 0
+                    self.loading_rect.setProgress(0)
                     self.is_hovering = False
             
             else:
@@ -84,8 +90,7 @@ class AR_Button:
 
 class AR_Menu:
     
-    def __init__(self, vision : vision2.Vision, position : Point = Point(0, 0), scale : float = 0.1):
-        self.vision = vision
+    def __init__(self, position : Point = Point(0, 0), scale : float = 0.1):
         self.buttons = []
         self.position = position
         self.scale = scale
@@ -94,17 +99,18 @@ class AR_Menu:
         self.buttons.append(button)
     
     def get_next_position(self):
-        return Point(self.position.x, self.position.y + self.scale*self.vision.height*(len(self.buttons)))
+        return Point(self.position.x, self.position.y + self.scale*test.SCREEN_HEIGHT*(len(self.buttons)))
     
     def add_button(self, text, action):
         next = self.get_next_position()
-        button = AR_Button(next.x, next.y, text, self.vision, action=action)
-        self.add_button(button)
+        print(next)
+        button = AR_Button.Create(next.x, next.y, text, action=action)
+        self.buttons.append(button)
         
-    def draw(self):
+    def draw(self, frame):
         for button in self.buttons:
-            button.draw()
+            button.draw(frame)
     
-    def process(self):
+    def process(self, hands):
         for button in self.buttons:
-            button.process()
+            button.process(hands)

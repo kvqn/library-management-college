@@ -1,6 +1,6 @@
 from __future__ import annotations
 import cv2
-import camera.vision2 as vision2
+import camera.test as test
 
 class Point:
     def __init__(self, x, y):
@@ -14,8 +14,8 @@ class Point:
         return f"Point({self.x}, {self.y})"
 
     @staticmethod
-    def fromLandmark(landmark, vision):
-        return Point(landmark.x*vision.width, landmark.y*vision.height)
+    def fromLandmark(landmark):
+        return Point(landmark.x*test.SCREEN_WIDTH, landmark.y*test.SCREEN_HEIGHT)
 
 class Color:
     
@@ -28,35 +28,26 @@ class Color:
     
 class Colour(Color):
     pass
+    
         
 class Rectangle :
     
-    # def __init__(self, point1 : Point, point2 : Point, color : tuple, thickness, vision : vision2.Vision) :
-
-    #     self.point1 = point1
-    #     self.point2 = point2
-    #     self.color = color
-    #     self.thickness = thickness
-    #     self.vision = vision
-    
-    
-    def __init__(self, point : Point, scale : int, color : tuple, thickness : int, vision : vision2.Vision) :
+    def __init__(self, point : Point, scale : int, color : tuple, thickness : int):
 
         self.point1 = Point(
             point.x,
             point.y
         )
         self.point2 = Point(
-            point.x + scale * min(vision.width, vision.height),
-            point.y + scale * min(vision.width, vision.height)
+            point.x + scale * min(test.SCREEN_WIDTH, test.SCREEN_HEIGHT),
+            point.y + scale * min(test.SCREEN_WIDTH, test.SCREEN_HEIGHT)
         )
         self.color = color
         self.thickness = thickness
-        self.vision = vision
         
-    def draw(self):
+    def draw(self, frame):
         cv2.rectangle(
-            img=self.vision.frame,
+            img=frame,
             pt1=self.point1.to_tuple(),
             pt2=self.point2.to_tuple(),
             color=self.color,
@@ -68,25 +59,49 @@ class Rectangle :
         return ((self.point1.x < point.x < self.point2.x) and (self.point1.y < point.y < self.point2.y))
         
             
+class LoadingRectangle(Rectangle):
+    
+    def __init__(self, point : Point, scale : int, color : tuple):
+        self.point1 = Point(
+            point.x,
+            point.y
+        )
+        self.point2 = Point(
+            point.x,
+            point.y + scale * min(test.SCREEN_WIDTH, test.SCREEN_HEIGHT)
+        )
+        self.scale = scale
+        self.color = color
+    
+    def setProgress(self, progress):
+        self.point2.x = int(self.point1.x + self.scale * min(test.SCREEN_WIDTH, test.SCREEN_HEIGHT) * progress)
+    
+    def draw(self, frame):
+        cv2.rectangle(
+            img = frame,
+            pt1 = self.point1.to_tuple(),
+            pt2 = self.point2.to_tuple(),
+            color=self.color,
+            thickness=-1
+        )
         
 
 class Text:
     
-    def __init__(self, point, scale, text, color, thickness, vision) :
+    def __init__(self, point, scale, text, color, thickness) :
         self.point = point
         self.scale = scale
         self.text = text
         self.color = color
         self.thickness = thickness
-        self.vision = vision
     
-    def draw(self):
+    def draw(self, frame):
         cv2.putText(
-            img=self.vision.frame,
+            img=frame,
             text=self.text,
             org=self.point.to_tuple(),
             fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-            fontScale=self.scale*min(self.vision.width, self.vision.height)/16,
+            fontScale=self.scale*min(test.SCREEN_HEIGHT, test.SCREEN_WIDTH)/16,
             # fontScale=12,
             color=self.color,
             thickness=self.thickness

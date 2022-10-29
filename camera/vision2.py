@@ -8,6 +8,7 @@ import time
 import signal
 from threading import Thread
 import logging
+import multiprocessing
 
 mpHands = mediapipe.solutions.hands
 mpDraw = mediapipe.solutions.drawing_utils
@@ -38,7 +39,7 @@ class WebcamStream:
             if self.stopped:
                 return
             self.ret, self.frame = self.stream.read()
-            # cv2.flip(self.frame, 1, self.frame)
+            cv2.flip(self.frame, 1, self.frame)
         
     def read(self):
         return self.frame
@@ -50,7 +51,53 @@ class WebcamStream:
     def StopAllStreams():
         for i in WebcamStream.objects:
             i.stop()
+
+class Context:
+    def __init__(self, frame, frame_no) :
+        self.frame = frame
+        self.frame_no = frame_no
+        self.buttons = []
+        self.menus = []
+        self.qr_codes = []
+        self.hands = []       
+        self.process_id : int = 0
+
+def process_context(putting_queue : multiprocessing.Queue, getting_queue : multiprocessing.Queue, process_id : int):
+    
+    while True:
+        context = getting_queue.get()
+        context.process_id = process_id
+
+        # # Processing qr
+        # context.qr_codes = pyzbar.decode(context.frame)
         
+        # # Processing hands
+        # context.hands = hands.process(context.frame).multi_hand_landmarks
+
+        # if context.hands == None:
+        #     context.hands = []
+
+        # # Displaying hands landmarks
+        # if context.hands:
+        #     # print("hands")
+        #     for hand in context.hands :
+        #         # print(hand)
+        #         mpDraw.draw_landmarks(context.frame, hand, mpHands.HAND_CONNECTIONS)
+        
+        
+        # # Process buttons
+        # for button in context.buttons:
+        #     button.process()
+        #     button.draw()
+        
+        # # Process menus
+        # for menu in context.menus:
+        #     menu.process()
+        #     button.draw()
+
+        putting_queue.put(context)
+
+
 
 class Vision:
     """
@@ -82,6 +129,11 @@ class Vision:
         self.is_scanning_for_qr = False
         self.action_queue : List[Action]= []
         self.codes : List[pyzbar.Decoded]= []
+        self.processes = []
+        self.N_PROCESSES = 4
+        self.processed_frames = dict()
+        self.process_queues = []
+        self.frames_queue = multiprocessing.Queue()
     
     def start(self):    
         self.ReadVideoCapture()
@@ -138,29 +190,68 @@ class Vision:
         logging.debug("Created window")
                
         logging.info("Starting main loop")
+
+        n_frame = 0
+        next_frame = 0
+
+        for i in range(self.N_PROCESSES):
+            queue = multiprocessing.Queue()
+            self.process_queues.append(queue)
+            multiprocessing.Process(target=process_context, args=(self.frames_queue, queue, i)).start()
+        
+        for i in range(self.N_PROCESSES):
+            self.process_queues[i].put(Context(self.webcam.read(), n_frame))
+            n_frame += 1
+
         
         while True :
-            
-            self.frame = self.webcam.read()
-            # print(ret)
-            
-            # self.do_actions()
-            self.process_fps()
-            self.process_hands()
-            self.process_buttons()
-            self.process_menus()
 
-            self.process_qr()
-            if self.codes:
-                print(self.codes)
+            context = None
+            if next_frame in self.processed_frames:
+                context = self.processed_frames[next_frame]
+                del self.processed_frames[next_frame]
+                
+            else:
+                logging.debug("getting frame from queue")
+                context : Context = self.frames_queue.get()
+                logging.debug(f"got {context.frame_no}")
+
+                self.process_queues[context.process_id].put(Context(self.webcam.read(), n_frame))
+                n_frame+=1
+
+                if (context.frame_no != next_frame):
+                    self.processed_frames[context.frame_no] = context
+                    context = None
+                else:
+                    next_frame+=1
             
-            self.draw()
+            if context:
+                cv2.imshow(self.window_name, context.frame)
+                key = cv2.waitKey(1)
+                if key == ord('q') :
+                    break
+
+            
+            # self.frame = self.webcam.read()
+            # # print(ret)
+            
+            # # self.do_actions()
+            # self.process_fps()
+            # self.process_buttons()
+            # self.process_menus()
+
+            # self.process_qr()
+            # if self.codes:
+            #     print(self.codes)
+            # self.process_hands()
+            
+            # self.draw()
             
             
-            cv2.imshow(self.window_name, self.frame)
-            key = cv2.waitKey(1)
-            if key == ord('q') :
-                break
+            # cv2.imshow(self.window_name, self.frame)
+            # key = cv2.waitKey(1)
+            # if key == ord('q') :
+            #     break
            
         
         self.stop()
@@ -204,6 +295,10 @@ class Vision:
 
 
 
+        
+
+
+
 def func():
     print("Button pressed !")
 
@@ -216,7 +311,7 @@ def main():
     # cv2.dnn.Net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
     
     # video_capture = cv2.VideoCapture("http://192.168.29.64:4747/video")
-    video_capture = cv2.VideoCapture(1)
+    video_capture = cv2.VideoCapture(0)
     if video_capture is None:
         logging.error("Could not open video capture")
         return
