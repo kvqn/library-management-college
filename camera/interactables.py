@@ -1,6 +1,7 @@
 from __future__ import annotations
 from camera.utils import *
 import camera.test as test
+import logging
 
 class AR_Button:
     
@@ -97,15 +98,11 @@ class AR_Menu:
         self.position = position
         self.scale = scale
     
-    def add_button(self, button : AR_Button):
-        self.buttons.append(button)
-    
     def get_next_position(self):
         return Point(self.position.x, self.position.y + self.scale*test.SCREEN_HEIGHT*(len(self.buttons)))
     
     def add_button(self, text, action):
         next = self.get_next_position()
-        print(next)
         button = AR_Button.Create(next.x, next.y, text, action=action)
         self.buttons.append(button)
         

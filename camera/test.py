@@ -25,21 +25,6 @@ class Context:
         self.qr_codes = []
         self.hands = []
 
-class STATE(Enum):
-    READY_FOR_INTERACTION = "READY_FOR_INTERACTION" # waiting to read barcode
-    INVALID_STUDENT_ID = "INVALID_STUDENT_ID" # student id is not in database
-    WAITING_COMMAND = "WAITING_COMMAND" # valid student id             
-    BORROW_BOOK = "BORROW_BOOK"
-    BOOK_CANT_BE_BORROWED = "BOOK_CANT_BE_BORROWED"
-    BOOK_CAN_BE_BORROWED = "BOOK_CAN_BE_BORROWED"                         
-    RETURN_BOOK = "BOOK_CANT_BE_RETURNED"                            
-    BOOK_CANT_BE_RETURNED = "RETURN_BOOK"                          
-    BOOK_CAN_BE_RETURNED = "BOOK_CAN_BE_RETURNED"
-
-
-import camera.utils as utils
-TEXT_READY_FOR_INTERACTION = utils.Text(utils.Point(200,100), 0.05, "Ready for interaction", utils.Color.ORANGE, 2)
-TEXT_INVALID_STUDENT_ID = utils.Text(utils.Point(200,100), 0.05, "Invalid student id", utils.Color.RED, 2)
 def process_frame(recv_queue, send_queue, stop_bool, SHOW_LANDMARKS, scan_qr, scan_hands):
     while True:
         with stop_bool.get_lock():
@@ -102,8 +87,25 @@ class SmartVideoCapture(cv2.VideoCapture):
         
     
 
+state = None
+time_state_started = time.time()
+scan_qr = multiprocessing.Value(ctypes.c_bool, True)
+scan_hands = multiprocessing.Value(ctypes.c_bool, False)
 
-state = STATE.READY_FOR_INTERACTION 
+def set_state(new_state, **setup_args):
+    global state
+    global time_state_started
+    state = new_state
+    state.setup(**setup_args)
+    time_state_started = time.time()
+
+def set_scan_qr(value : bool):
+    with scan_qr.get_lock():
+        scan_qr.value = value
+
+def set_scan_hands(value : bool):
+    with scan_hands.get_lock():
+        scan_hands.value = value
 
 def main(SHOW_FPS : bool, SHOW_LANDMARKS : bool, VIDEO_CAPTURE):
 
@@ -131,6 +133,8 @@ def main(SHOW_FPS : bool, SHOW_LANDMARKS : bool, VIDEO_CAPTURE):
     SCREEN_HEIGHT = int(camera.get(cv2.CAP_PROP_FRAME_HEIGHT))
     SCREEN_WIDTH = int(camera.get(cv2.CAP_PROP_FRAME_WIDTH))
     logging.debug("created video capture")
+    logging.info(f"Screen Height = {SCREEN_HEIGHT}")
+    logging.info(f"Screen Width = {SCREEN_WIDTH}")
 
     
     queues = []
@@ -138,8 +142,7 @@ def main(SHOW_FPS : bool, SHOW_LANDMARKS : bool, VIDEO_CAPTURE):
     processes = []
 
     frames_queue = multiprocessing.Queue()
-    scan_qr = multiprocessing.Value(ctypes.c_bool, True)
-    scan_hands = multiprocessing.Value(ctypes.c_bool, False)
+    
 
     for i in range(N_PROCESSES):
         queues.append(multiprocessing.Queue())
@@ -156,57 +159,11 @@ def main(SHOW_FPS : bool, SHOW_LANDMARKS : bool, VIDEO_CAPTURE):
     next_frame = 0
     n_read_frames = 0
     window = "test"
+    global time_state_started
     time_state_started = time.time()
-    
-    state = STATE.READY_FOR_INTERACTION
-
-    import camera.interactables as interactables
-    MENU_WAITING_FOR_COMMAND = interactables.AR_Menu(utils.Point(SCREEN_WIDTH/2, SCREEN_HEIGHT/2), 0.1)
-
-    def ACTION_BORROW_BOOK_WAITING():
-        logging.info("borrow")
-        global state
-        state = STATE.BORROW_BOOK
-        with scan_qr.get_lock():
-            scan_qr.value = True
-        with scan_hands.get_lock():
-            scan_hands.value = False
-        
-    MENU_WAITING_FOR_COMMAND.add_button(
-        text = "Borrow",
-        action = utils.Action(ACTION_BORROW_BOOK_WAITING, ())
-    )   
-
-    def ACTION_RETURN_BOOK_WAITING():
-        logging.info("return")
-        global state
-        state = STATE.RETURN_BOOK
-        with scan_qr.get_lock():
-            scan_qr.value = True
-        with scan_hands.get_lock():
-            scan_hands.value = False
-    
-    MENU_WAITING_FOR_COMMAND.add_button(
-        text = "Return",
-        action = utils.Action(ACTION_RETURN_BOOK_WAITING, ())
-    )
-    
-    def EXIT():
-        logging.info("exit")
-        global state
-        state = STATE.READY_FOR_INTERACTION
-        with scan_qr.get_lock():
-            scan_qr.value = True
-        with scan_hands.get_lock():
-            scan_hands.value = False
-    
-    MENU_WAITING_FOR_COMMAND.add_button(
-        text = "Exit",
-        action = utils.Action(EXIT, ())
-    )
-
-    state = STATE.READY_FOR_INTERACTION
-    time_state_started = time.time()
+    import camera.states.READY_FOR_INTERACTION as READY_FOR_INTERACTION
+    state = READY_FOR_INTERACTION
+    state.setup()
     
     while True:
         ctx = None
@@ -224,46 +181,7 @@ def main(SHOW_FPS : bool, SHOW_LANDMARKS : bool, VIDEO_CAPTURE):
         if ctx is not None:
             logging.debug(f"Frame {ctx.frame_no}")
             
-            match state:
-                case STATE.READY_FOR_INTERACTION:
-                    if ctx.qr_codes:
-                        code = ctx.qr_codes[0]
-                        logging.info(code)
-                        student_id = code.data.decode("utf-8")
-                        student = db.student.FetchFromDatabase(student_id)
-                        if student is not None:
-                            TEXT_WELCOME_STUDENT = interactables.Text(utils.Point(200,100), 0.04, f"Welcome {student.name}", utils.Color.WHITE, 2)
-                            state = STATE.WAITING_COMMAND
-                            with scan_qr.get_lock():
-                                scan_qr.value = False
-                            with scan_hands.get_lock():
-                                scan_hands.value = True
-                            time_state_started = time.time()
-                        else:
-                            state = STATE.INVALID_STUDENT_ID
-                            time_state_started = time.time()
-                            with scan_qr.get_lock():
-                                scan_qr.value = False
-                            with scan_hands.get_lock():
-                                scan_hands.value = False
-                    else:
-                        TEXT_READY_FOR_INTERACTION.draw(ctx.frame)
-
-                case STATE.INVALID_STUDENT_ID:
-                    if time.time() - time_state_started > 5:
-                        state = STATE.READY_FOR_INTERACTION
-                        time_state_started = time.time()
-                        with scan_qr.get_lock():
-                            scan_qr.value = True
-                        with scan_hands.get_lock():
-                            scan_hands.value = False
-                    else:
-                        TEXT_INVALID_STUDENT_ID.draw(ctx.frame)
-                    
-                case STATE.WAITING_COMMAND:
-                    MENU_WAITING_FOR_COMMAND.draw(ctx.frame)
-                    MENU_WAITING_FOR_COMMAND.process(ctx.hands)
-                    TEXT_WELCOME_STUDENT.draw(ctx.frame)
+            state.post_process_hook(ctx)
                 
             if SHOW_FPS:
                 ctx.frame = process_fps(ctx.frame)

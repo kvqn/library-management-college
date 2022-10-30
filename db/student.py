@@ -37,6 +37,8 @@ def InsertIntoDatabase(student : Student):
 def FetchFromDatabase(library_id : int):
     cur.execute(f"SELECT * FROM {TABLE_NAME} WHERE library_id = {library_id}")
     data = cur.fetchone()
+    if data is None:
+        return None
     return Student(data[0], data[1], data[2], data[3], data[4], data[5])
 
 def CheckIfInDatabase(library_id : int):
