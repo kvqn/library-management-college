@@ -11,7 +11,8 @@ class AR_Button:
         text: Text,
         frames_to_hold: int = 20,
         action : Action = None, 
-        allowed_fingers : list = [test.mpHands.HandLandmark.INDEX_FINGER_TIP]
+        allowed_fingers : list = [test.mpHands.HandLandmark.INDEX_FINGER_TIP],
+        detection_thickness = 0.02
     ):
         self.rect = rect
         self.loading_rect = loading_rect
@@ -23,6 +24,7 @@ class AR_Button:
         self.is_pressed = False
         self.is_hovering = False
         self.allowed_fingers = allowed_fingers
+        self.detection_thickness = detection_thickness
     
     @staticmethod
     def Create(x, y, text, scale=0.04, color=Color.WHITE, **kwargs) -> AR_Button:
@@ -52,7 +54,7 @@ class AR_Button:
             for finger in self.allowed_fingers:
                 pt = Point.fromLandmark(hand.landmark[finger])
                 # print(pt)
-                if self.rect.is_inside(pt):
+                if self.rect.is_inside(pt, self.detection_thickness):
                     inside = True
                     break
             if inside:

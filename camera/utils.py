@@ -54,9 +54,12 @@ class Rectangle :
             thickness=self.thickness
         )
     
-    def is_inside(self, point : Point):
+    def is_inside(self, point : Point, detection_thickness = 0):
         # print(self.point1, self.point2, point)
-        return ((self.point1.x < point.x < self.point2.x) and (self.point1.y < point.y < self.point2.y))
+        return (
+            (self.point1.x - detection_thickness*test.SCREEN_WIDTH < point.x < self.point2.x + detection_thickness * test.SCREEN_WIDTH) 
+        and (self.point1.y - detection_thickness*test.SCREEN_HEIGHT < point.y < self.point2.y + detection_thickness * test.SCREEN_HEIGHT)
+        )
         
             
 class LoadingRectangle(Rectangle):

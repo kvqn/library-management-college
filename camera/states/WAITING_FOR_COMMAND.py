@@ -11,11 +11,11 @@ MENU = interactables.AR_Menu(utils.Point(100,200))
 
 def func_borrow_book():
     logging.info("borrow book")
-    # test.set_state(states.BORROW_BOOK, student = STUDENT)
+    test.set_state(states.BORROW_BOOK, student = STUDENT)
     
 def func_return_book():
     logging.info("return book")
-    # test.set_state(states.RETURN_BOOK, student = STUDENT)
+    test.set_state(states.RETURN_BOOK, student = STUDENT)
    
 def func_exit():
     test.set_state(states.READY_FOR_INTERACTION)
