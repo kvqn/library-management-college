@@ -30,8 +30,8 @@ if __name__ == "__main__":
         logging.basicConfig(level=logging.INFO)
     
     if args.command == "start":
-        from camera import test
-        test.main(args.show_fps, args.show_landmarks, args.video_capture)
+        from camera import vision
+        vision.main(args.show_fps, args.show_landmarks, args.video_capture)
     elif args.command == "register-student":
         from db import student
         s = student.Student(args.id, args.name, args.phone, args.branch, args.semester, args.email)

@@ -1,6 +1,6 @@
 from __future__ import annotations
 from camera.utils import *
-import camera.test as test
+import camera.vision as vision
 import logging
 
 class AR_Button:
@@ -11,7 +11,7 @@ class AR_Button:
         text: Text,
         frames_to_hold: int = 20,
         action : Action = None, 
-        allowed_fingers : list = [test.mpHands.HandLandmark.INDEX_FINGER_TIP],
+        allowed_fingers : list = [vision.mpHands.HandLandmark.INDEX_FINGER_TIP],
         detection_thickness = 0.02
     ):
         self.rect = rect
@@ -101,7 +101,7 @@ class AR_Menu:
         self.scale = scale
     
     def get_next_position(self):
-        return Point(self.position.x, self.position.y + self.scale*test.SCREEN_HEIGHT*(len(self.buttons)))
+        return Point(self.position.x, self.position.y + self.scale*vision.SCREEN_HEIGHT*(len(self.buttons)))
     
     def add_button(self, text, action):
         next = self.get_next_position()

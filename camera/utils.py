@@ -1,6 +1,6 @@
 from __future__ import annotations
 import cv2
-import camera.test as test
+import camera.vision as vision
 
 class Point:
     def __init__(self, x, y):
@@ -15,7 +15,7 @@ class Point:
 
     @staticmethod
     def fromLandmark(landmark):
-        return Point(landmark.x*test.SCREEN_WIDTH, landmark.y*test.SCREEN_HEIGHT)
+        return Point(landmark.x*vision.SCREEN_WIDTH, landmark.y*vision.SCREEN_HEIGHT)
 
 class Color:
     
@@ -41,8 +41,8 @@ class Rectangle :
             point.y
         )
         self.point2 = Point(
-            point.x + scale * min(test.SCREEN_WIDTH, test.SCREEN_HEIGHT),
-            point.y + scale * min(test.SCREEN_WIDTH, test.SCREEN_HEIGHT)
+            point.x + scale * min(vision.SCREEN_WIDTH, vision.SCREEN_HEIGHT),
+            point.y + scale * min(vision.SCREEN_WIDTH, vision.SCREEN_HEIGHT)
         )
         self.color = color
         self.thickness = thickness
@@ -59,8 +59,8 @@ class Rectangle :
     def is_inside(self, point : Point, detection_thickness = 0):
         # print(self.point1, self.point2, point)
         return (
-            (self.point1.x - detection_thickness*test.SCREEN_WIDTH < point.x < self.point2.x + detection_thickness * test.SCREEN_WIDTH) 
-        and (self.point1.y - detection_thickness*test.SCREEN_HEIGHT < point.y < self.point2.y + detection_thickness * test.SCREEN_HEIGHT)
+            (self.point1.x - detection_thickness*vision.SCREEN_WIDTH < point.x < self.point2.x + detection_thickness * vision.SCREEN_WIDTH) 
+        and (self.point1.y - detection_thickness*vision.SCREEN_HEIGHT < point.y < self.point2.y + detection_thickness * vision.SCREEN_HEIGHT)
         )
         
             
@@ -73,13 +73,13 @@ class LoadingRectangle(Rectangle):
         )
         self.point2 = Point(
             point.x,
-            point.y + scale * min(test.SCREEN_WIDTH, test.SCREEN_HEIGHT)
+            point.y + scale * min(vision.SCREEN_WIDTH, vision.SCREEN_HEIGHT)
         )
         self.scale = scale
         self.color = color
     
     def setProgress(self, progress):
-        self.point2.x = int(self.point1.x + self.scale * min(test.SCREEN_WIDTH, test.SCREEN_HEIGHT) * progress)
+        self.point2.x = int(self.point1.x + self.scale * min(vision.SCREEN_WIDTH, vision.SCREEN_HEIGHT) * progress)
     
     def draw(self, frame):
         cv2.rectangle(
@@ -106,7 +106,7 @@ class Text:
             text=self.text,
             org=self.point.to_tuple(),
             fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-            fontScale=self.scale*min(test.SCREEN_HEIGHT, test.SCREEN_WIDTH)/16,
+            fontScale=self.scale*min(vision.SCREEN_HEIGHT, vision.SCREEN_WIDTH)/16,
             # fontScale=12,
             color=self.color,
             thickness=self.thickness

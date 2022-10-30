@@ -1,11 +1,11 @@
 import multiprocessing
 import logging
 import queue
+from tkinter import W
 import cv2
 import time
 import ctypes
 import mediapipe
-from enum import Enum
 from pyzbar import pyzbar
 import threading
 import db
@@ -83,8 +83,6 @@ class SmartVideoCapture(cv2.VideoCapture):
     def stop(self):
         self.is_stopped = True
         self.thread.join()
-    
-        
     
 
 state = None
