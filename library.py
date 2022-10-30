@@ -25,6 +25,7 @@ commands["register-student"].add_argument("branch", help="Student branch")
 commands["register-student"].add_argument("semester", help="Student semester", type=int)
 commands["register-student"].add_argument("email", help="Student email")
 
+commands["version"] = subparsers.add_parser("version", help="Print version")
 
 args = None
 
@@ -41,7 +42,11 @@ if __name__ == "__main__":
         logging.error("Failed to connect to database")
         raise e
     
-    if args.command == "start":
+    if args.command == "version":
+        with open("version", 'r') as file:
+            version = file.read()
+        print(f"Library Management System v{version}")
+    elif args.command == "start":
         from camera import vision
         vision.main(args.show_fps, args.show_landmarks, args.video_capture)
     elif args.command == "register-student":
