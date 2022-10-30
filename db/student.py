@@ -1,9 +1,8 @@
 # Access module for the student.db database
 
-from . import Database
 import sqlite3
 
-conn = sqlite3.connect('student.db')
+conn = sqlite3.connect('databases/student.db')
 cur = conn.cursor()
 
 TABLE_NAME = "STUDENTS"
@@ -19,6 +18,7 @@ semester integer,
 email text
 )"""
     )
+    conn.commit()
     
 class Student:
     def __init__(self, library_id : int, name : str, phone : str, branch : str, semester : str, email : str):
@@ -29,16 +29,17 @@ class Student:
         self.semester = semester
         self.email = email
     
-    @staticmethod
-    def FetchFromDatabase(library_id : int):
-        cur.execute(f"SELECT * FROM {TABLE_NAME} WHERE library_id = {library_id}")
-        if cur.rowcount == 0:
-            return None
-        data = cur.fetchone()
-        return Student(data[0], data[1], data[2], data[3], data[4], data[5])
-    
-    
     
 def InsertIntoDatabase(student : Student):
     cur.execute(f"INSERT INTO {TABLE_NAME} VALUES ({student.library_id}, '{student.name}', '{student.phone}', '{student.branch}', {student.semester}, '{student.email}')")
     conn.commit()
+
+def FetchFromDatabase(library_id : int):
+    cur.execute(f"SELECT * FROM {TABLE_NAME} WHERE library_id = {library_id}")
+    data = cur.fetchone()
+    return Student(data[0], data[1], data[2], data[3], data[4], data[5])
+
+def CheckIfInDatabase(library_id : int):
+    cur.fetchall()
+    cur.execute(f"SELECT * FROM {TABLE_NAME} WHERE library_id = {library_id}")
+    return len(cur.fetchall()) != 0 

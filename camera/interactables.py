@@ -72,11 +72,13 @@ class AR_Button:
             if self.is_hovering:
                 if inside: # TODO: loading circle
                     self.frames_held += 1
-                    self.loading_rect.setProgress(self.frames_held / self.frames_to_hold)
                     if (self.frames_held >= self.frames_to_hold):
+                        self.loading_rect.setProgress(0)
                         self.is_pressed = True
                         if self.action:
                             self.action()
+                    else:
+                        self.loading_rect.setProgress(self.frames_held / self.frames_to_hold)
                 else:
                     self.frames_held = 0
                     self.loading_rect.setProgress(0)

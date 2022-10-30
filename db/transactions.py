@@ -3,7 +3,7 @@
 import sqlite3
 from datetime import datetime
 
-conn = sqlite3.connect('transactions.db')
+conn = sqlite3.connect('databases/transactions.db')
 cur = conn.cursor()
 
 def CreateTableIfNotExist():
