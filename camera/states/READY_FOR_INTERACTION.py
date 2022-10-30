@@ -4,7 +4,7 @@ import db
 import logging
 import camera.states as states
 
-TEXT_READY_FOR_INTERACTION = utils.Text(utils.Point(200,100), 0.05, "Ready for interaction", utils.Color.ORANGE, 2)
+TEXT_READY_FOR_INTERACTION = utils.Text(utils.Point(20,20), 0.02, "Ready for interaction", utils.Color.ORANGE, 2)
 
 def setup():
     logging.info("Setting up stage READY_FOR_INTERACTION")

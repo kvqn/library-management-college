@@ -31,7 +31,7 @@ def setup(student : db.student.Student):
     STUDENT = student
     test.set_scan_hands(True)
     test.set_scan_qr(False)
-    TEXT_WELCOME_STUDENT = interactables.Text(utils.Point(200,100), 0.04, f"Welcome {student.name}", utils.Color.WHITE, 2)
+    TEXT_WELCOME_STUDENT = interactables.Text(utils.Point(20,80), 0.04, f"Welcome {student.name}", utils.Color.BLUE, 4)
     
 def post_process_hook(ctx : test.Context):
     MENU.draw(ctx.frame)

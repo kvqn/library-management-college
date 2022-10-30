@@ -1,16 +1,13 @@
 # Access module for the student.db database
 
-import sqlite3
-
-conn = sqlite3.connect('databases/student.db')
-cur = conn.cursor()
+from . import cur
 
 TABLE_NAME = "STUDENTS"
 
 def CreateTableIfNotExist():
     cur.execute(
 """CREATE TABLE IF NOT EXISTS STUDENTS (
-library_id integer primary key,
+id integer primary key,
 name text,
 phone text,
 branch text,
@@ -18,12 +15,11 @@ semester integer,
 email text
 )"""
     )
-    conn.commit()
-    
+
 class Student:
-    def __init__(self, library_id : int, name : str, phone : str, branch : str, semester : str, email : str):
+    def __init__(self, id : int, name : str, phone : str, branch : str, semester : str, email : str):
         self.name = name
-        self.library_id = library_id
+        self.id = id
         self.phone = phone
         self.branch = branch
         self.semester = semester
@@ -31,17 +27,16 @@ class Student:
     
     
 def InsertIntoDatabase(student : Student):
-    cur.execute(f"INSERT INTO {TABLE_NAME} VALUES ({student.library_id}, '{student.name}', '{student.phone}', '{student.branch}', {student.semester}, '{student.email}')")
-    conn.commit()
+    cur.execute(f"INSERT INTO {TABLE_NAME} VALUES ({student.id}, '{student.name}', '{student.phone}', '{student.branch}', {student.semester}, '{student.email}')")
 
 def FetchFromDatabase(library_id : int):
-    cur.execute(f"SELECT * FROM {TABLE_NAME} WHERE library_id = {library_id}")
+    cur.execute(f"SELECT * FROM {TABLE_NAME} WHERE id = {library_id}")
     data = cur.fetchone()
     if data is None:
         return None
     return Student(data[0], data[1], data[2], data[3], data[4], data[5])
 
-def CheckIfInDatabase(library_id : int):
+def CheckIfInDatabase(id : int):
     cur.fetchall()
-    cur.execute(f"SELECT * FROM {TABLE_NAME} WHERE library_id = {library_id}")
+    cur.execute(f"SELECT * FROM {TABLE_NAME} WHERE id = {id}")
     return len(cur.fetchall()) != 0 

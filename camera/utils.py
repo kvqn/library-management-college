@@ -25,6 +25,8 @@ class Color:
     GREEN = (0, 255, 0)
     WHITE = (255, 255, 255)
     BLACK = (0, 0, 0)
+    YELLOW = (0, 255, 255)
+    PURPLE = (255, 0, 255)
     
 class Colour(Color):
     pass
