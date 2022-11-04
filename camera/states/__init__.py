@@ -1,4 +1,3 @@
-from tkinter import W
 import camera.states.BORROW_BOOK as BORROW_BOOK
 import camera.states.INVALID_STUDENT as INVALID_STUDENT
 import camera.states.READY_FOR_INTERACTION as READY_FOR_INTERACTION

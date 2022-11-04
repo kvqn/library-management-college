@@ -1,7 +1,6 @@
 import multiprocessing
 import logging
 import queue
-from tkinter import W
 import cv2
 import time
 import ctypes
