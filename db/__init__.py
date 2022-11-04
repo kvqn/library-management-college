@@ -1,4 +1,5 @@
-import mariadb
+# import mariadb
+import mysql.connector as mariadb
 
 conn = None
 cur = None
