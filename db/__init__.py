@@ -9,6 +9,7 @@ def CreateConnection(user, password, database, server):
     global cur
     conn = mariadb.connect(user=user, password=password, database=database, host=server)
     cur = conn.cursor()
+    print(cur)
     conn.autocommit = True
 
 import db.student as student
