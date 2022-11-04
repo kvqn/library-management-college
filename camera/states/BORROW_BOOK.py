@@ -12,7 +12,8 @@ TEXT_LOGGED_IN_AS : utils.Text = None
 TEXT_ERROR : utils.Text = None
 time_text_error_start = 0
 
-CART_MENU = interactables.AR_Menu(utils.Point(vision.SCREEN_WIDTH-300,100), scale=0.004)
+# CART_MENU = interactables.AR_Menu(utils.Point(vision.SCREEN_WIDTH-300,100), scale=0.004)
+CART_MENU = interactables.AR_Menu(utils.Point(vision.SCREEN_WIDTH-300,100))
 CART_MENU.items = []
 
 def func_confirm():

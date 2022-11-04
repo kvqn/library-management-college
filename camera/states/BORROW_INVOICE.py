@@ -29,7 +29,7 @@ def setup(books : List[db.books.Book], student : db.student.Student):
     global TEXT_BOOKS
     TEXT_BOOKS = []
     for i in range(len(BOOKS)):
-        TEXT_BOOKS.append(utils.Text(utils.Point(200,200 + i * 30), 0.02, BOOKS[i].name, utils.Color.WHITE, 2))
+        TEXT_BOOKS.append(utils.Text(utils.Point(vision.SCREEN_WIDTH*0.20,vision.SCREEN_HEIGHT*0.30 + i * vision.SCREEN_HEIGHT*0.05), 0.02, BOOKS[i].name, utils.Color.WHITE, 2))
     
     global TEXT_RETURN_DATE
     TEXT_RETURN_DATE = utils.Text(utils.Point(150,vision.SCREEN_HEIGHT-100), 0.02, f"Return date: {(datetime.datetime.now() + datetime.timedelta(days=14)).date()}", utils.Color.WHITE, 2)

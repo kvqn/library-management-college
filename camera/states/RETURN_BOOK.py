@@ -12,7 +12,8 @@ TEXT_LOGGED_IN_AS : utils.Text = None
 TEXT_ERROR : utils.Text = None
 time_text_error_start = 0
 
-CART_MENU = interactables.AR_Menu(utils.Point(vision.SCREEN_WIDTH-300,100), scale=0.004)
+# CART_MENU = interactables.AR_Menu(utils.Point(vision.SCREEN_WIDTH-300,100), scale=0.004)
+CART_MENU = interactables.AR_Menu(utils.Point(vision.SCREEN_WIDTH-300,100))
 CART_MENU.items = []
 
 def func_confirm():
@@ -20,7 +21,7 @@ def func_confirm():
     for i in CART_MENU.items:
         db.transactions.ReturnBook(i.id, STUDENT.id)
     CART_MENU.buttons.clear()
-    vision.set_state(states.BORROW_INVOICE, books = CART_MENU.items.copy(), student = STUDENT)
+    vision.set_state(states.RETURN_INVOICE, books = CART_MENU.items.copy(), student = STUDENT)
     CART_MENU.items.clear()
     
 BUTTON_CONFIRM = interactables.AR_Button.Create(vision.SCREEN_WIDTH - 350, vision.SCREEN_HEIGHT - 80, "Confirm", 0.03, utils.Color.GREEN, action=utils.Action(func_confirm), detection_thickness = 0.02)
