@@ -87,7 +87,7 @@ def post_process_hook(ctx : vision.Context):
     
     _codes_on_screen = []
     for _code in ctx.qr_codes:
-        code = int(_code.data.decode("utf-8"))
+        code = _code.data.decode("utf-8")
         for item in CART_MENU.items:
             if item.id == code:
                 if code not in codes_on_screen:
