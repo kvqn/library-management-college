@@ -42,7 +42,7 @@ def post_process_hook(ctx : vision.Context):
     for i in TEXT_BOOKS:
         i.draw(ctx.frame)
     
-    if time.time() - vision.time_state_started > 5:
+    if time.time() - vision.time_state_started > 7:
         vision.set_state(states.WAITING_FOR_COMMAND, student = STUDENT)
     
     
