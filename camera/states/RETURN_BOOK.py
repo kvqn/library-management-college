@@ -13,7 +13,7 @@ TEXT_ERROR : utils.Text = None
 time_text_error_start = 0
 
 # CART_MENU = interactables.AR_Menu(utils.Point(vision.SCREEN_WIDTH-300,100), scale=0.004)
-CART_MENU = interactables.AR_Menu(utils.Point(vision.SCREEN_WIDTH-300,100))
+CART_MENU = interactables.AR_Menu(utils.Point(vision.SCREEN_WIDTH*0.05,100))
 CART_MENU.items = []
 
 def func_confirm():
@@ -24,7 +24,7 @@ def func_confirm():
     vision.set_state(states.RETURN_INVOICE, books = CART_MENU.items.copy(), student = STUDENT)
     CART_MENU.items.clear()
     
-BUTTON_CONFIRM = interactables.AR_Button.Create(vision.SCREEN_WIDTH - 350, vision.SCREEN_HEIGHT - 80, "Confirm", 0.03, utils.Color.GREEN, action=utils.Action(func_confirm), detection_thickness = 0.02)
+BUTTON_CONFIRM = interactables.AR_Button.Create(vision.SCREEN_WIDTH*0.05, vision.SCREEN_HEIGHT - 80, "Confirm", 0.03, utils.Color.GREEN, action=utils.Action(func_confirm), detection_thickness = 0.02)
 
 def func_cancel():
     logging.info("cancel return")
@@ -32,7 +32,7 @@ def func_cancel():
     CART_MENU.items.clear()
     vision.set_state(states.WAITING_FOR_COMMAND, student = STUDENT)
 
-BUTTON_CANCEL = interactables.AR_Button.Create(vision.SCREEN_WIDTH - 150, vision.SCREEN_HEIGHT - 80, "Cancel", 0.03, utils.Color.RED, action=utils.Action(func_cancel), detection_thickness = 0.02)
+BUTTON_CANCEL = interactables.AR_Button.Create(vision.SCREEN_WIDTH*0.15, vision.SCREEN_HEIGHT - 80, "Cancel", 0.03, utils.Color.RED, action=utils.Action(func_cancel), detection_thickness = 0.02)
 
 def cart_add(book_id : int):
     global TEXT_ERROR
