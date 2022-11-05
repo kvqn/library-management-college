@@ -16,7 +16,7 @@ TEXT_BOOKS = []
 # TEXT_RETURN_DATE : utils.Text = None
 
 def setup(books : List[db.books.Book], student : db.student.Student):
-    logging.info("Setting up stage BORROW_INVOICE")
+    logging.info("Setting up stage RETURN_INVOICE")
     global BOOKS
     global STUDENT
     global TEXT_LOGGED_IN_AS
