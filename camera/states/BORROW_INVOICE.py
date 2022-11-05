@@ -32,7 +32,7 @@ def setup(books : List[db.books.Book], student : db.student.Student):
         TEXT_BOOKS.append(utils.Text(utils.Point(vision.SCREEN_WIDTH*0.20,vision.SCREEN_HEIGHT*0.40 + i * vision.SCREEN_HEIGHT*0.05), 0.02, BOOKS[i].name, utils.Color.WHITE, 2))
     
     global TEXT_RETURN_DATE
-    TEXT_RETURN_DATE = utils.Text(utils.Point(150,vision.SCREEN_HEIGHT-100), 0.02, f"Return date: {(datetime.datetime.now() + datetime.timedelta(days=14)).date()}", utils.Color.WHITE, 2)
+    TEXT_RETURN_DATE = utils.Text(utils.Point(vision.SCREEN_WIDTH*0.15,vision.SCREEN_HEIGHT-100), 0.02, f"Return date: {(datetime.datetime.now() + datetime.timedelta(days=14)).date()}", utils.Color.WHITE, 2)
 
 def post_process_hook(ctx : vision.Context):
     
