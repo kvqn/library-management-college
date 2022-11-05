@@ -42,7 +42,7 @@ def cart_add(book_id : int):
         CART_MENU.items.append(book)
         CART_MENU.add_button(book.name, utils.Action(cart_remove, (book,)))
     else:
-        TEXT_ERROR = interactables.Text(utils.Point(20,vision.SCREEN_HEIGHT-20), 0.02, f"Book {book_id} cannot be returned.", utils.Color.RED, 2)
+        TEXT_ERROR = interactables.Text(utils.Point(20,vision.SCREEN_HEIGHT-20), 0.02, f"Book {book_id} has been added to cart.", utils.Color.RED, 2)
         time_text_error_start = time.time()
 
 def cart_remove(book : db.books.Book):

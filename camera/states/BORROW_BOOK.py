@@ -39,7 +39,7 @@ def cart_add(book_id : int):
     global time_text_error_start
     if db.books.checkIfCanBeBorrowed(book_id):
         if db.transactions.checkIfAlreadyBorrowed(book_id, STUDENT.id):
-            TEXT_ERROR = interactables.Text(utils.Point(20,vision.SCREEN_HEIGHT-20), 0.02, f"Book {book_id} is already borrowed", utils.Color.ORANGE, 2)
+            TEXT_ERROR = interactables.Text(utils.Point(20,vision.SCREEN_HEIGHT-20), 0.02, f"Book {book_id} has been added to cart.", utils.Color.ORANGE, 2)
             time_text_error_start = time.time()
         else:
             book = db.books.FetchFromDatabase(book_id)
