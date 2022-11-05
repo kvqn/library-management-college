@@ -32,7 +32,7 @@ def func_cancel():
     CART_MENU.items.clear()
     vision.set_state(states.WAITING_FOR_COMMAND, student = STUDENT)
 
-BUTTON_CANCEL = interactables.AR_Button.Create(vision.SCREEN_WIDTH*0.15, vision.SCREEN_HEIGHT - 80, "Cancel", 0.03, utils.Color.RED, action=utils.Action(func_cancel), detection_thickness = 0.02)
+BUTTON_CANCEL = interactables.AR_Button.Create(vision.SCREEN_WIDTH*0.25, vision.SCREEN_HEIGHT - 80, "Cancel", 0.03, utils.Color.RED, action=utils.Action(func_cancel), detection_thickness = 0.02)
 
 def cart_add(book_id : int):
     global TEXT_ERROR
