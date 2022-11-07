@@ -29,7 +29,6 @@ class AR_Button:
     @staticmethod
     def Create(x, y, text, scale=0.04, color=Color.WHITE, **kwargs) -> AR_Button:
         rect = Rectangle(Point(x, y), scale, color, 2)
-        # FIXME: the text is not alligned properly
         x2 = rect.point2.x * 1.01
         y2 = rect.point2.y
         text = Text(Point(x2, y2), scale, text, color, 2)
@@ -73,7 +72,7 @@ class AR_Button:
         else :
             
             if self.is_hovering:
-                if inside: # TODO: loading circle
+                if inside: 
                     self.frames_held += 1
                     if (self.frames_held >= self.frames_to_hold):
                         # self.loading_rect.setProgress(0)
