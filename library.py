@@ -16,6 +16,7 @@ commands["start"] = subparsers.add_parser("start", help="Start the camera")
 commands["start"].add_argument("--show-fps", action="store_true", help="Show FPS on the screen", dest = "show_fps")
 commands["start"].add_argument("--show-landmarks", action="store_true", help="Show hand landmarks on the screen", dest = "show_landmarks")
 commands["start"].add_argument("--video-capture", "-vc", help="Video capture to use", dest = "video_capture", default=0)
+commands["start"].add_argument("--n-processes", "-np", help="Number of processes to use", dest = "n_processes", default=4, type=int)
 
 commands["version"] = subparsers.add_parser("version", help="Print version")
 
@@ -40,4 +41,4 @@ if __name__ == "__main__":
         print(f"Library Management System v{version}")
     elif args.command == "start":
         from camera import vision
-        vision.main(args.show_fps, args.show_landmarks, args.video_capture)
+        vision.main(args.show_fps, args.show_landmarks, args.video_capture, args.n_processes)

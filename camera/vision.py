@@ -51,12 +51,40 @@ def process_frame(recv_queue, send_queue, stop_bool, SHOW_LANDMARKS, scan_qr, sc
 
         send_queue.put(ctx)
 
+# def process_fps(frame):
+#     current_time = time.time()
+#     fps = 1/(current_time - process_fps.previous_times.get())
+#     process_fps.previous_times.put(current_time)
+#     if current_time-process_fps.time_since_previous_change > 1:
+#         process_fps.time_since_previous_change = current_time
+#         process_fps.fps_on_screen = fps
+#     frame = cv2.putText(frame, f"FPS: {int(process_fps.fps_on_screen)}", (int(SCREEN_WIDTH*0.75), 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+#     return frame
+
 def process_fps(frame):
     current_time = time.time()
-    fps = 1/(current_time - process_fps.previous_times.get())
-    process_fps.previous_times.put(current_time)
-    frame = cv2.putText(frame, f"FPS: {int(fps)}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+    process_fps.frames_processed_in_last_second += 1
+    process_fps.processed_times.append(current_time)
+    # for i in range(process_fps.frames_processed_in_last_second):
+    #     if current_time-process_fps.processed_times[i] <= 1:
+    #         process_fps.processed_times = process_fps.processed_times[i:]
+    #         break
+    #     else:
+    #         process_fps.frames_processed_in_last_second -= 1
+    i=0
+    for t in process_fps.processed_times:
+        if current_time - t <1:
+            break
+        i+=1
+    process_fps.processed_times = process_fps.processed_times[i:]
+    process_fps.frames_processed_in_last_second-=i
+    frame = cv2.putText(frame, f"FPS: {process_fps.frames_processed_in_last_second}", (int(SCREEN_WIDTH*0.75), 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
     return frame
+
+def process_fps_init():
+    process_fps.frames_processed_in_last_second = 0
+    process_fps.processed_times = []
+    
 
 
 class SmartVideoCapture(cv2.VideoCapture):
@@ -104,16 +132,16 @@ def set_scan_hands(value : bool):
     with scan_hands.get_lock():
         scan_hands.value = value
 
-def main(SHOW_FPS : bool, SHOW_LANDMARKS : bool, VIDEO_CAPTURE):
+def main(SHOW_FPS : bool, SHOW_LANDMARKS : bool, VIDEO_CAPTURE, N_PROCESSES : int):
 
     db.student.CreateTableIfNotExist()
     db.books.CreateTableIfNotExist()
     db.transactions.CreateTableIfNotExist()
 
-    process_fps.previous_times = queue.Queue()
-    N_PROCESSES = 4
-    for i in range(N_PROCESSES):
-        process_fps.previous_times.put(time.time())
+    process_fps_init()
+    # N_PROCESSES = 4
+    # for i in range(N_PROCESSES):
+    #     process_fps.previous_times.put(time.time())
     
     global SCREEN_HEIGHT 
     global SCREEN_WIDTH
@@ -174,6 +202,7 @@ def main(SHOW_FPS : bool, SHOW_LANDMARKS : bool, VIDEO_CAPTURE):
             queues[ctx.process_index].put(Context(camera.read()[1], n_read_frames, ctx.process_index))
             n_read_frames+=1
             processed_frames[ctx.frame_no] = ctx
+            ctx = None
         
         if ctx is not None:
             logging.debug(f"Frame {ctx.frame_no}")
