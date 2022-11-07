@@ -42,7 +42,7 @@ def cart_add(book_id : int):
         CART_MENU.items.append(book)
         CART_MENU.add_button(book.name, utils.Action(cart_remove, (book,)))
     else:
-        TEXT_ERROR = interactables.Text(utils.Point(20,vision.SCREEN_HEIGHT-20), 0.02, f"Book {book_id} has been added to cart.", utils.Color.RED, 2)
+        TEXT_ERROR = interactables.Text(utils.Point(20,vision.SCREEN_HEIGHT-20), 0.02, f"Book {book_id} cannot be returned.", utils.Color.RED, 2)
         time_text_error_start = time.time()
 
 def cart_remove(book : db.books.Book):
@@ -92,7 +92,7 @@ def post_process_hook(ctx : vision.Context):
         for item in CART_MENU.items:
             if item.id == code:
                 if code not in codes_on_screen:
-                    TEXT_ERROR = interactables.Text(utils.Point(20,vision.SCREEN_HEIGHT-20), 0.02, f"Book {code} is already in cart", utils.Color.ORANGE, 2)
+                    TEXT_ERROR = interactables.Text(utils.Point(20,vision.SCREEN_HEIGHT-20), 0.02, f"Book {code} has been added to cart.", utils.Color.ORANGE, 2)
                     time_text_error_start = time.time()
                 break
         else:
