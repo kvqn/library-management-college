@@ -1,5 +1,5 @@
 # Library Management System
-A simple library management system using cameras.
+Modern Library Management System using Computer Vision.
 
 # Installation Instructions
 
